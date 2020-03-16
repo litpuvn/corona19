@@ -23,8 +23,8 @@ plt.fill_between(df_gtrends.index, df_gtrends['world'], color="blue", alpha=0.4)
 plt.plot(df_gtrends.index, df_gtrends['world'], marker='', color='blue', linewidth=1)
 plt.plot(df_new_deaths.index, df_new_deaths['Worldwide'], marker='', color='red', linewidth=1, linestyle='dashed')
 plt.plot(df_new_cases.index, df_new_cases['Worldwide'], marker='', color='olive', linewidth=1)
-plt.plot(df_total_cases.index, df_total_cases['Worldwide'] / 5, marker='', color='skyblue', linewidth=1)
-plt.plot(df_total_deaths.index, df_total_deaths['Worldwide'], marker='', color='#8ebad9', linewidth=1)
+# plt.plot(df_total_cases.index, df_total_cases['Worldwide'] / 5, marker='', color='skyblue', linewidth=1)
+# plt.plot(df_total_deaths.index, df_total_deaths['Worldwide'], marker='', color='#8ebad9', linewidth=1)
 
 
 # y_values = [2, 7, 14, 17, 20, 27, 30, 38, 25, 18, 6, 1]
@@ -42,5 +42,5 @@ plt.xlabel('Date', size=12)
 plt.ylabel('Good Trends Search', size=12)
 # plt.ylim(bottom=0)
 
-plt.legend(['trends', 'new deaths', 'new cases', 'total deaths', 'total cases'])
+plt.legend(['trends', 'new deaths', 'new cases'])
 plt.show()
