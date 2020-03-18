@@ -36,8 +36,8 @@ time_step_lag = 1
 
 multi_time_series = DataFrame(combined_data)
 multi_time_series.columns = ['load', 'trends']
-# features = ["load", "trends"]
-features = ["load"]
+features = ["load", "trends"]
+# features = ["load"]
 
 valid_start_dt = '2020-02-29'
 test_start_dt = '2020-03-07'
