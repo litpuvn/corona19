@@ -1,2 +1,4 @@
 data/
 .idea/
+output/
+common/__pycache__/

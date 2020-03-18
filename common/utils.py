@@ -11,7 +11,7 @@ from sklearn.preprocessing.data import StandardScaler
 
 from common.TimeseriesTensor import TimeSeriesTensor
 from sklearn.utils import check_array
-
+import csv
 
 
 
@@ -122,3 +122,24 @@ def flatten_test_predict(y_tests, y_predicts):
     y_predicts = y_predicts.ravel()
 
     return y_tests, y_predicts
+
+
+
+def store_predict_points(y_tests, y_predicts, filepath):
+    n = len(y_tests)
+    if n != len(y_predicts):
+        raise Exception('bad testing samples and predictions')
+
+    ri = filepath.rfind('/')
+    folder = filepath[0:ri]
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+
+    with open(filepath, 'w', newline='') as writer:
+        csv_writer = csv.writer(writer, delimiter=',')
+        csv_writer.writerow(["y_test", "y_pred"])
+
+        for i in range(len(y_tests)):
+            csv_writer.writerow([y_tests[i], y_predicts[i]])
+
+        print("Done writing prediction result to", filepath)

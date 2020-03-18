@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from keras.layers.recurrent import LSTM
 from pandas.core.frame import DataFrame
 from pandas import concat
-from common.utils import split_train_validation_test, flatten_test_predict
+from common.utils import split_train_validation_test, flatten_test_predict, store_predict_points
 
 filepath = 'data/gtrends.csv'
 df_gtrends = pd.read_csv(filepath, sep=',', header=0, index_col=0, parse_dates=True)
@@ -36,7 +36,8 @@ time_step_lag = 1
 
 multi_time_series = DataFrame(combined_data)
 multi_time_series.columns = ['load', 'trends']
-features = ["load", "trends"]
+# features = ["load", "trends"]
+features = ["load"]
 
 valid_start_dt = '2020-02-29'
 test_start_dt = '2020-03-07'
@@ -70,7 +71,7 @@ from common.utils import split_train_validation_test, mape
 
 LATENT_DIM = 16
 BATCH_SIZE = 32
-EPOCHS = 50
+EPOCHS = 200
 
 X_train = train_inputs['X']
 y_train = train_inputs['target_load']
@@ -87,7 +88,7 @@ print("valid_X shape", X_valid.shape)
 model = Sequential()
 model.add(LSTM(LATENT_DIM, input_shape=(time_step_lag, len(features))))
 model.add(Dense(1))
-model.compile(optimizer='RMSprop', loss='mse')
+model.compile(optimizer='sgd', loss='mse')
 model.summary()
 
 earlystop = EarlyStopping(monitor='val_loss', patience=10)
@@ -103,13 +104,24 @@ history = model.fit(X_train,
 X_test = test_inputs['X']
 y1_test = test_inputs['target_load']
 
+y_predicted_train = model.predict(X_train)
+y_predicted_valid = model.predict(X_valid)
+
 y1_preds = model.predict(X_test)
 
 if y_scaler is not None:
     y1_test = y_scaler.inverse_transform(y1_test)
+    y_train = y_scaler.inverse_transform(y_train)
+    y_valid = y_scaler.inverse_transform(y_valid)
+
     y1_preds = y_scaler.inverse_transform(y1_preds)
+    y_predicted_train = y_scaler.inverse_transform(y_predicted_train)
+    y_predicted_valid = y_scaler.inverse_transform(y_predicted_valid)
 
 y1_test, y1_preds = flatten_test_predict(y1_test, y1_preds)
+y_train, y_valid = flatten_test_predict(y_train, y_valid)
+y_predicted_train, y_predicted_valid = flatten_test_predict(y_predicted_train, y_predicted_valid)
+
 mse = mean_squared_error(y1_test, y1_preds)
 
 rmse_predict = sqrt(mse)
@@ -119,11 +131,11 @@ mse = mean_squared_error(y1_test, y1_preds)
 
 meae = median_absolute_error(y1_test, y1_preds)
 r_square = r2_score(y1_test, y1_preds)
-# mape_v = mape(y1_preds.reshape(-1, 1), y1_test.reshape(-1, 1))
-
-# print("mse:", mse, 'rmse_predict:', rmse_predict, "mae:", mae, "mape:", mape_v, "r2:", r_square,
-#       "meae:", meae, "evs:", evs)
-
 
 print('rmse_predict:', rmse_predict, "evs:", evs, "mae:", mae,
       "mse:", mse, "meae:", meae, "r2:", r_square)
+
+output_actual_y = np.concatenate((y_train, y_valid, y1_test), axis=0)
+output_predicted_y = np.concatenate((y_predicted_train, y_predicted_valid, y1_preds), axis=0)
+
+store_predict_points(output_actual_y, output_predicted_y, 'output/test_lstm_prediction_epochs_' + str(EPOCHS) + '.csv')
