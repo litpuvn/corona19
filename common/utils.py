@@ -61,6 +61,7 @@ def split_train_validation_test(multi_time_series_df, valid_start_time, test_sta
     tensor_structure = {'X': (range(-time_step_lag + 1, 1), features)}
     train_inputs = TimeSeriesTensor(train, target=target, H=horizon, freq=freq, tensor_structure=tensor_structure)
 
+    print("train input shape:", train_inputs.dataframe.shape)
     print(train_inputs.dataframe.head())
 
 
@@ -84,9 +85,17 @@ def split_train_validation_test(multi_time_series_df, valid_start_time, test_sta
         test[features] = X_scaler.transform(test_features)
     test_inputs = TimeSeriesTensor(test, target=target, H=horizon, freq=freq, tensor_structure=tensor_structure)
 
+    entire_sequence = multi_time_series_df.copy()
+    entire_sequence_features = entire_sequence[features]
+    if X_scaler is not None:
+        entire_sequence[features] = X_scaler.transform(entire_sequence_features)
+
+    entire_sequence_inputs = TimeSeriesTensor(entire_sequence, target=target, H=horizon, freq=freq, tensor_structure=tensor_structure)
+
     print("time lag:", time_step_lag, "original_feature:", len(features))
 
-    return train_inputs, valid_inputs, test_inputs, y_scaler
+
+    return train_inputs, valid_inputs, test_inputs, y_scaler, entire_sequence_inputs
 
 
 def mape(predictions, actuals):
@@ -137,7 +146,7 @@ def store_predict_points(y_tests, y_predicts, filepath):
 
     with open(filepath, 'w', newline='') as writer:
         csv_writer = csv.writer(writer, delimiter=',')
-        csv_writer.writerow(["y_test", "y_pred"])
+        csv_writer.writerow(["y_actual", "y_pred"])
 
         for i in range(len(y_tests)):
             csv_writer.writerow([y_tests[i], y_predicts[i]])

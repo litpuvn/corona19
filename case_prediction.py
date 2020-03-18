@@ -42,7 +42,7 @@ features = ["load"]
 valid_start_dt = '2020-02-29'
 test_start_dt = '2020-03-07'
 
-train_inputs, valid_inputs, test_inputs, y_scaler = split_train_validation_test(multi_time_series,
+train_inputs, valid_inputs, test_inputs, y_scaler, entire_inputs = split_train_validation_test(multi_time_series,
                                                                                 valid_start_time=valid_start_dt,
                                                                                 test_start_time=test_start_dt,
                                                                                 time_step_lag=time_step_lag,
@@ -103,24 +103,22 @@ history = model.fit(X_train,
 # Test the model
 X_test = test_inputs['X']
 y1_test = test_inputs['target_load']
-
-y_predicted_train = model.predict(X_train)
-y_predicted_valid = model.predict(X_valid)
-
 y1_preds = model.predict(X_test)
+
+X_entire = entire_inputs['X']
+Y_entire = entire_inputs['target_load']
+predicted_Y_entire = model.predict(X_entire)
 
 if y_scaler is not None:
     y1_test = y_scaler.inverse_transform(y1_test)
-    y_train = y_scaler.inverse_transform(y_train)
-    y_valid = y_scaler.inverse_transform(y_valid)
-
     y1_preds = y_scaler.inverse_transform(y1_preds)
-    y_predicted_train = y_scaler.inverse_transform(y_predicted_train)
-    y_predicted_valid = y_scaler.inverse_transform(y_predicted_valid)
+    predicted_Y_entire = y_scaler.inverse_transform(predicted_Y_entire)
+
+
+
 
 y1_test, y1_preds = flatten_test_predict(y1_test, y1_preds)
-y_train, y_valid = flatten_test_predict(y_train, y_valid)
-y_predicted_train, y_predicted_valid = flatten_test_predict(y_predicted_train, y_predicted_valid)
+Y_entire, predicted_Y_entire = flatten_test_predict(Y_entire, predicted_Y_entire)
 
 mse = mean_squared_error(y1_test, y1_preds)
 
@@ -135,7 +133,7 @@ r_square = r2_score(y1_test, y1_preds)
 print('rmse_predict:', rmse_predict, "evs:", evs, "mae:", mae,
       "mse:", mse, "meae:", meae, "r2:", r_square)
 
-output_actual_y = np.concatenate((y_train, y_valid, y1_test), axis=0)
-output_predicted_y = np.concatenate((y_predicted_train, y_predicted_valid, y1_preds), axis=0)
+# output_actual_y = np.concatenate((y_train, y_valid, y1_test), axis=0)
+# output_predicted_y = np.concatenate((y_predicted_train, y_predicted_valid, y1_preds), axis=0)
 
-store_predict_points(output_actual_y, output_predicted_y, 'output/test_lstm_prediction_epochs_' + str(EPOCHS) + '.csv')
+store_predict_points(Y_entire, predicted_Y_entire, 'output/test_lstm_prediction_epochs_' + str(EPOCHS) + '.csv')
