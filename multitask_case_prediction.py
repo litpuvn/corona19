@@ -86,9 +86,14 @@ KERNEL_SIZE = 2
 
 X_train = train_inputs['X']
 y_train = train_inputs['target_load']
+y2_train = train_inputs['target_trends']
+final_y_train = [y_train, y2_train]
+
 
 X_valid = valid_inputs['X']
 y_valid = valid_inputs['target_load']
+y2_valid = valid_inputs['target_trends']
+final_y_valid = [y_valid, y2_valid]
 
 # input_x = train_inputs['X']
 print("train_X shape", X_train.shape)
@@ -104,35 +109,35 @@ model = Sequential()
 # model.add(Flatten())
 # model.add(Dense(1))
 
-model.add(
-    Conv1D(LATENT_DIM, kernel_size=KERNEL_SIZE, padding='causal', strides=3, activation='relu', dilation_rate=1,
-           input_shape=(time_step_lag, len(features))))
-model.add(
-    Conv1D(LATENT_DIM, kernel_size=KERNEL_SIZE, padding='causal', strides=1, activation='relu', dilation_rate=2))
-model.add(
-    Conv1D(LATENT_DIM, kernel_size=KERNEL_SIZE, padding='causal', strides=1, activation='relu', dilation_rate=4))
-model.add(Flatten())
-model.add(Dense(HORIZON, activation='linear'))
+# model.add(
+#     Conv1D(LATENT_DIM, kernel_size=KERNEL_SIZE, padding='causal', strides=3, activation='relu', dilation_rate=1,
+#            input_shape=(time_step_lag, len(features))))
+# model.add(
+#     Conv1D(LATENT_DIM, kernel_size=KERNEL_SIZE, padding='causal', strides=1, activation='relu', dilation_rate=2))
+# model.add(
+#     Conv1D(LATENT_DIM, kernel_size=KERNEL_SIZE, padding='causal', strides=1, activation='relu', dilation_rate=4))
+# model.add(Flatten())
+# model.add(Dense(HORIZON, activation='linear'))
 
-#
-# x = Input(shape=(time_step_lag, len(features)), name="input_layer")
-# conv = Conv1D(kernel_size=1, filters=5, activation='relu')(x)
-# conv2 = Conv1D(5, kernel_size=3, padding='causal', strides=1, activation='relu', dilation_rate=2)(conv)
-# lstm = GRU(16, return_sequences=True)(conv2)
-# shared_dense = Dense(32, name="shared_layer")(lstm)
-# ## sub1 is main task; units = reshape dimension multiplication
-# sub1 = GRU(units=64, name="task1")(shared_dense)
-# sub2 = GRU(units=16, name="task2")(shared_dense)
-#
-# out1 = Dense(8, name="spec_out1")(sub1)
-# out1 = Dense(1, name="out1")(out1)
-#
-# out2 = Dense(8, name="spec_out2")(sub2)
-# out2 = Dense(1, name="out2")(out2)
-#
-# outputs = [out1, out2]
-#
-# model = KerasModel(inputs=x, outputs=outputs)
+
+x = Input(shape=(time_step_lag, len(features)), name="input_layer")
+conv = Conv1D(kernel_size=1, filters=5, activation='relu')(x)
+conv2 = Conv1D(5, kernel_size=3, padding='causal', strides=1, activation='relu', dilation_rate=2)(conv)
+lstm = GRU(16, return_sequences=True)(conv2)
+shared_dense = Dense(32, name="shared_layer")(lstm)
+## sub1 is main task; units = reshape dimension multiplication
+sub1 = GRU(units=64, name="task1")(shared_dense)
+sub2 = GRU(units=16, name="task2")(shared_dense)
+
+out1 = Dense(8, name="spec_out1")(sub1)
+out1 = Dense(1, name="out1")(out1)
+
+out2 = Dense(8, name="spec_out2")(sub2)
+out2 = Dense(1, name="out2")(out2)
+
+outputs = [out1, out2]
+
+model = KerasModel(inputs=x, outputs=outputs)
 # model.compile(optimizer='adam', loss='mse')
 
 
@@ -140,21 +145,21 @@ model.compile(optimizer='RMSprop', loss='mse')
 model.summary()
 earlystop = EarlyStopping(monitor='val_loss', patience=10)
 history = model.fit(X_train,
-                    y_train,
+                    final_y_train,
                     batch_size=BATCH_SIZE,
                     epochs=EPOCHS,
-                    validation_data=(X_valid, y_valid),
+                    validation_data=(X_valid, final_y_valid),
                     callbacks=[earlystop],
                     verbose=1)
 
 # Test the model
 X_test = test_inputs['X']
 y1_test = test_inputs['target_load']
-y1_preds = model.predict(X_test)
+y1_preds, _ = model.predict(X_test)
 
 X_entire = entire_inputs['X']
 Y_entire = entire_inputs['target_load']
-predicted_Y_entire = model.predict(X_entire)
+predicted_Y_entire, predicted_trends_entire = model.predict(X_entire)
 
 if y_scaler is not None:
     y1_test = y_scaler.inverse_transform(y1_test)
