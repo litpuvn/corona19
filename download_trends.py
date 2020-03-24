@@ -74,23 +74,23 @@ def extract_then_store_range(current_dir_path, date_range):
 
     global pytrend
 
-    time.sleep(15)
+    # time.sleep(15)
     # Interest by Region
     interest_by_region_df = pytrend.interest_by_region()
 
-    time.sleep(15)
+    time.sleep(1)
     related_queries_dict = pytrend.related_queries()
     related_queries_dict = related_queries_dict[k]
     top_related_queries_df = related_queries_dict['top']
     rising_related_queries_df = related_queries_dict['rising']
 
-    time.sleep(15)
+    time.sleep(1)
     related_topic = pytrend.related_topics()
     related_topic = related_topic[k]
     top_related_topic_df = related_topic['top']
     rising_related_topic_df = related_topic['rising']
 
-    time.sleep(15)
+    time.sleep(1)
     interest_over_time_df = pytrend.interest_over_time()
     filename = os.path.join(current_dir_path, date_range + "-interest.csv")
     if interest_over_time_df is not None:
