@@ -20,7 +20,7 @@ df_gtrends = df_gtrends[37:]
 df_gtrends['Worldwide'] = df_gtrends.sum(axis=1)
 
 df_new_cases = pd.read_csv('data/new_cases_april_01.csv', sep=',', header=0, index_col=0, parse_dates=True)
-df_new_cases = df_new_cases[21:-12]
+df_new_cases = df_new_cases[21:-10]
 df_new_cases.fillna(value=0, inplace=True)
 
 # countries = ['Italy', 'Spain', 'France', 'Germany']
@@ -48,14 +48,26 @@ keywords = ['cases of covid19', 'corona', 'coronavirus', 'coronavirus cases', 'c
             'covid 19 cases', 'covid19', 'covid19 cases'
             ]
 
+all_frames = []
 for country in countries:
     if country not in df_new_cases.columns:
         continue
     country_new_cases_df = df_new_cases[country]
+    frame = {'confirmed_cases': country_new_cases_df}
+    target_frame = DataFrame(frame)
+    target_frame.to_csv("data/target_confirmed_cases.csv", index=True)
+
     for kw in keywords:
         gtrends_df = get_gtrend_data_by_keyword(kw)
-        remove_rows = 60-len(gtrends_df)
+        remove_rows = 62-len(gtrends_df)
         if remove_rows < 0:
             gtrends_df = gtrends_df[:remove_rows]
         corr, pval = pearsonr(country_new_cases_df.values, gtrends_df[kw].values)
+
+        frame = {kw.replace(' ', '_', 5): gtrends_df[kw]}
+        all_frames = all_frames + [DataFrame(frame)]
+        print("shape:")
         print('correlation:', kw, ':new case vs gtrends:', country,"; corr:", corr, "p-val:", pval)
+
+frame = pd.concat(all_frames, axis=1)
+frame.to_csv("data/features.csv", index=True)
