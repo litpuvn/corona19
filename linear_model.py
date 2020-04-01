@@ -10,6 +10,8 @@ import matplotlib.pyplot as plt
 target = pd.read_csv('data/target_confirmed_cases.csv', sep=',', header=0, index_col=0, parse_dates=True)
 features = pd.read_csv('data/features.csv', sep=',', header=0, index_col=0, parse_dates=True)
 
+features.drop(['coronavirus_symptoms'], inplace=True, axis=1)
+
 X = features
 y = target['confirmed_cases']
 lm = linear_model.LinearRegression()
