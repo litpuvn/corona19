@@ -23,6 +23,8 @@ from sklearn.metrics import median_absolute_error
 from sklearn.metrics import r2_score
 from math import sqrt
 from sklearn import metrics
+from common.utils import mape
+
 
 target = pd.read_csv('data/target_confirmed_cases.csv', sep=',', header=0, index_col=0, parse_dates=True)
 features = pd.read_csv('data/features.csv', sep=',', header=0, index_col=0, parse_dates=True)
@@ -77,6 +79,8 @@ predicted_Y_entire = model.predict(X)
 print('Mean Absolute Error:', metrics.mean_absolute_error(y_test, y_pred))
 print('Mean Squared Error:', metrics.mean_squared_error(y_test, y_pred))
 print('Root Mean Squared Error:', np.sqrt(metrics.mean_squared_error(y_test, y_pred)))
+mape_v = mape(y_pred.reshape(-1, 1), y_test.values.reshape(-1, 1))
+print('mape:', mape_v)
 r2 = metrics.r2_score(y_test, y_pred)
 print("R2:",  r2)
 store_predict_points(Y_entire, predicted_Y_entire, 'output/test_cnn_prediction_epochs_r2_' + str(r2) + '.csv')
