@@ -1,3 +1,4 @@
+#Figure 5: Overall terms in related queries.
 import pandas as pd
 import numpy as np
 

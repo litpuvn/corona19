@@ -1,3 +1,6 @@
+#Short Title of the Article
+#Figure 4:Daily interest change of each keyword
+
 import matplotlib.pyplot as plt
 import numpy as np
 import os
