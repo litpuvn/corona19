@@ -16,9 +16,11 @@ import networkx as nx
 # Create list of lists containing bigrams in tweets
 
 # keywords = ['corona', 'cases of covid19', 'coronavirus cases', 'coronavirus covid19']
+
+#used in Figure: Categories of related topic
 # keywords = ['covid19']
-# keywords = ['coronavirus']
-keywords = ['covid19 cases']
+keywords = ['coronavirus']
+# keywords = ['covid19 cases']
 folder = 'data/daily-complete'
 number_of_pairs = 50
 
@@ -77,8 +79,9 @@ nx.draw_networkx(G, pos,
                  width=weights,
                 #  edge_color='grey',
                  edge_color='gray',
-                 node_color='purple',#'mediumpurple',#'plum',#'purple',
+                 node_color='purple',#'purple',#'mediumpurple',#'plum',#'purple',
                  with_labels=False,
+                 #node_shape='h', #4/14: one of ‘so^>v<dph8’ (default=’o’)
                  ax=ax)
 
 # Create offset labels
@@ -87,11 +90,14 @@ y_arr = []
 for key, value in pos.items():
     # x, y = value[0] + .135, value[1] + .045
     x_delta = 0
+    y_delta = .06
     x = value[0]
     y = value[1]
     if x > 0:
         x_delta = 0.01
-    x, y = x + x_delta, y + .06
+    if y < 0:
+        y_delta = -.135
+    x, y = x + x_delta, y + y_delta
     x_arr.append(x)
     y_arr.append(y)
     ax.text(x, y,
