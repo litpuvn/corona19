@@ -116,8 +116,9 @@ def extract_then_store_range(current_dir_path, date_range):
     if rising_related_topic_df is not None:
         rising_related_topic_df.to_csv(filename, index=True)
 # keywords1 = ["covid19 cases", "cases of covid19", "covid 19", "covid 19 cases", "coronavirus cases", "coronavirus covid19"]
-keywords2 = ["corona", "coronavirus update", "coronavirus symptoms", "coronavirus news"]
+# keywords2 = ["corona", "coronavirus update", "coronavirus symptoms", "coronavirus news"]
 # keywords = ["covid19", "covid"]
+keywords2 = ["coronavirus"]
 keywords = keywords2
 
 for k in keywords:

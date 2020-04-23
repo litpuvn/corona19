@@ -10,16 +10,18 @@ from common.utils import split_train_validation_test, flatten_test_predict, stor
 from common.utils import mape
 
 target = pd.read_csv('data/target_confirmed_cases.csv', sep=',', header=0, index_col=0, parse_dates=True)
-features = pd.read_csv('data/features.csv', sep=',', header=0, index_col=0, parse_dates=True)
+target['t+1'] = target['confirmed_cases'].shift(1 * -1, freq='d')
 
-features.drop(['coronavirus_symptoms'], inplace=True, axis=1)
+target.dropna(how='any', inplace=True)
 
-X = features
-y = target['confirmed_cases']
-Y_entire = y
+print(target.head())
+
+X = pd.DataFrame(target['confirmed_cases'], index=target.index)
+y = pd.DataFrame(target['t+1'], index=target.index)
+Y_entire = y['t+1']
 lm = linear_model.LinearRegression()
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=0)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15, random_state=42, shuffle=True)
 X_test = X_test.sort_index()
 y_test = y_test.sort_index()
 X_train = X_train.sort_index()
@@ -43,7 +45,7 @@ mape_v = mape(y_pred.reshape(-1, 1), y_test.values.reshape(-1, 1))
 print('mape:', mape_v)
 r2 = metrics.r2_score(y_test, y_pred)
 print("R2:",  r2)
-store_predict_points(Y_entire, predicted_Y_entire, 'output/test_linear_prediction_r2_' + str(r2) + '.csv')
+store_predict_points(Y_entire, predicted_Y_entire, 'output/test_linear_without_prediction_r2_' + str(r2) + '.csv')
 
 
 # df = pd.DataFrame({'Actual': y_test, 'Predicted': y_pred})

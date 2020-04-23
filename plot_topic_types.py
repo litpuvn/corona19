@@ -32,7 +32,7 @@ for k in keywords:
         if not os.path.exists(filepath):
             print('file', filepath, 'does not exist')
             continue
-        print("--- data day:", start_date.strftime('%Y-%m-%d'), "; counter i=", i)
+        # print("--- data day:", start_date.strftime('%Y-%m-%d'), "; counter i=", i)
         df = pd.read_csv(filepath, sep=',', header=0, index_col=0, parse_dates=False)
         if len(df) < 1:
             continue
@@ -48,12 +48,16 @@ for k in keywords:
 
 
 sorted_types = {k: v for k, v in sorted(topic_types.items(), key=lambda item: item[1], reverse=True)}
-print(sorted_types)
+# print(sorted_types)
 
 topics = []
 counter = 0
+# ignore_topics = ['Topic', 'People', 'Broadcast genre']
+ignore_topics = ['Topic']
 for k, v in sorted_types.items():
-    if v > 15:
+    if k in ignore_topics:
+        continue
+    if v > 10:
         topics.append(k)
         print('topic:', k, "; val:", v)
         counter += 1
@@ -74,7 +78,7 @@ for k in keywords:
         if not os.path.exists(filepath):
             print('file', filepath, 'does not exist')
             continue
-        print("--- data day:", start_date.strftime('%Y-%m-%d'), "; counter i=", i)
+        # print("--- data day:", start_date.strftime('%Y-%m-%d'), "; counter i=", i)
         df2 = pd.read_csv(filepath, sep=',', header=0, index_col=0, parse_dates=False)
         if len(df) < 1:
             continue
@@ -85,15 +89,20 @@ for k in keywords:
             if topic_type in topics:
                 r = topic_type
                 c = start_date.strftime('%Y-%m-%d')
-                # df[topic_type][start_date.strftime('%Y-%m-%d')] = value
                 df.at[r, c] = value
+                t = row['topic_title']
+                if topic_type in ['Website']:
+                    print('type:', r, '; title: ', t)
         # all_frames = all_frames + [df]
         start_date = start_date + timedelta(1)
 
 
 print("topic types:", len(topics))
 print("days:", len(days))
-ax = sns.heatmap(df, yticklabels=True)
+ax = sns.heatmap(df, yticklabels=True, linewidths=0, cmap="YlGnBu")
+# ax.figure.tight_layout()
+ax.figure.subplots_adjust(left = 0.3) # change 0.3 to suit your needs.
+
 plt.show()
 
 

@@ -28,18 +28,22 @@ from common.utils import mape
 
 
 target = pd.read_csv('data/target_confirmed_cases.csv', sep=',', header=0, index_col=0, parse_dates=True)
-features = pd.read_csv('data/features.csv', sep=',', header=0, index_col=0, parse_dates=True)
+target['t+1'] = target['confirmed_cases'].shift(1 * -1, freq='d')
+target.dropna(how='any', inplace=True)
 
-features.drop(['coronavirus_symptoms'], inplace=True, axis=1)
+X = pd.DataFrame(target['confirmed_cases'], index=target.index)
+X.columns = ['corona']
+y = pd.DataFrame(target['t+1'], index=target.index)
+y.columns = ['confirmed_cases']
 
-X = features
-y = target['confirmed_cases']
+# X = features
+# y = target['confirmed_cases']
 
-feature_count = features.shape[1]
+feature_count = 1
 print('feature count:', feature_count)
 X = X.values.reshape(-1, 1, feature_count)
-Y_entire = y
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15, random_state=0)
+Y_entire = y['confirmed_cases']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15, random_state=42)
 
 HORIZON = 1
 LATENT_DIM = 16
@@ -85,4 +89,4 @@ mape_v = mape(y_pred.reshape(-1, 1), y_test.values.reshape(-1, 1))
 print('mape:', mape_v)
 r2 = metrics.r2_score(y_test, y_pred)
 print("R2:",  r2)
-store_predict_points(Y_entire, predicted_Y_entire, 'output/test_cnn_prediction_epochs_r2_' + str(r2) + '.csv')
+store_predict_points(Y_entire, predicted_Y_entire, 'output/test_cnn_without_prediction_epochs_r2_' + str(r2) + '.csv')
