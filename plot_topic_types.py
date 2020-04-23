@@ -1,3 +1,4 @@
+#heatmap - Figure 6: Categories of related topics
 import pandas as pd
 import  os
 from os.path import isfile, join
@@ -47,17 +48,21 @@ for k in keywords:
         start_date = start_date + timedelta(1)
 
 
-sorted_types = {k: v for k, v in sorted(topic_types.items(), key=lambda item: item[1], reverse=True)}
-# print(sorted_types)
+# sorted_types = {k: v for k, v in sorted(topic_types.items(), key=lambda item: item[1], reverse=True)}
+sorted_types = dict()
+max_show = 20
+for k, v in sorted(topic_types.items(), key=lambda item: item[1], reverse=True):
+    if max_show > 0:
+        sorted_types.update({k: v})
+    else:
+        break
+    max_show -= 1
+print(sorted_types)
 
 topics = []
 counter = 0
-# ignore_topics = ['Topic', 'People', 'Broadcast genre']
-ignore_topics = ['Topic']
 for k, v in sorted_types.items():
-    if k in ignore_topics:
-        continue
-    if v > 10:
+    if v > 15:
         topics.append(k)
         print('topic:', k, "; val:", v)
         counter += 1
@@ -65,7 +70,8 @@ for k, v in sorted_types.items():
 start_date = date(start_year, start_mon, start_day)
 days = []
 for i in range(day_count):
-    days = days + [start_date.strftime('%Y-%m-%d')]
+    # days = days + [start_date.strftime('%Y-%m-%d')]
+    days = days + [start_date.strftime('%m-%d')]
     start_date = start_date + timedelta(1)
 
 df = DataFrame(index=topics, columns=days)
@@ -88,22 +94,43 @@ for k in keywords:
             value = row['value']
             if topic_type in topics:
                 r = topic_type
-                c = start_date.strftime('%Y-%m-%d')
+                # c = start_date.strftime('%Y-%m-%d')
+                c = start_date.strftime('%m-%d')
+                # df[topic_type][start_date.strftime('%Y-%m-%d')] = value
                 df.at[r, c] = value
-                t = row['topic_title']
-                if topic_type in ['Website']:
-                    print('type:', r, '; title: ', t)
         # all_frames = all_frames + [df]
         start_date = start_date + timedelta(1)
 
 
 print("topic types:", len(topics))
 print("days:", len(days))
-ax = sns.heatmap(df, yticklabels=True, linewidths=0, cmap="YlGnBu")
-# ax.figure.tight_layout()
-ax.figure.subplots_adjust(left = 0.3) # change 0.3 to suit your needs.
+#4/14 set size and color of fig
+# plt.figure(num=None, figsize=(8, 6), dpi=200, facecolor='w', edgecolor='k')
+fig = plt.figure(num=None, figsize=(8, 6), dpi=100, facecolor='w', edgecolor='w')
+# plt.clf()
+# sns.palplot(sns.color_palette("BuGn_r"))
 
-plt.show()
+#change axis color
+plt.rcParams['axes.facecolor'] = 'black' #axes font color is black
+plt.rcParams['legend.facecolor'] = 'black' #legend font color is black
+ax = sns.heatmap(df, yticklabels=True, cmap="YlGnBu")
+fig.tight_layout()#shrink graph to show all labels in y legend
+# plt.ylabel('y_description', horizontalalignment='right', y=5.0)
+# plt.ylabel('ylabel', fontsize=16)
+# plt.show()
+
+#rotate y axis
+# ax.set_yticklabels(ax.get_yticklabels(), rotation=25)
+
+#save fig
+out_path = 'figures/'
+out_filename = out_path + 'related_topics.pdf'
+out_filename = out_filename.replace(" ", "-")
+print('The figure save into:', out_filename)
+plt.savefig(out_filename, dpi=200) #save figure as ward_clusters
+
+print('df.head()')
+print(df.head())
 
 
 # print("total topic types:", counter)
