@@ -17,8 +17,8 @@ target.dropna(how='any', inplace=True)
 print(target.head())
 
 X = pd.DataFrame(target['confirmed_cases'], index=target.index)
-y = pd.DataFrame(target['t+1'], index=target.index)
-Y_entire = y['t+1']
+y = target['t+1']
+Y_entire = y
 lm = linear_model.LinearRegression()
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15, random_state=42, shuffle=True)
