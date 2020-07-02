@@ -27,46 +27,26 @@ def plot_wordcloud(text, mask=None, max_words=400, max_font_size=120, figure_siz
                           max_words=max_words,
                           max_font_size=max_font_size,
                           random_state=42,
-                          mask=mask,
-                        #   width=1000,
-                        #   height=500
-                          width=750,
-                          height=375
-                          )
+                          mask=mask)
     # wordcloud.generate(text)
     wordcloud.generate_from_frequencies(text, max_font_size=max_font_size)
 
     if title is None:
         title = ''
-    # plt.figure(figsize=figure_size)
-    # plt.figure(figsize=figure_size, dpi=1200)
-    # plt.figure(figsize=(24,14), dpi=1200)
-    dpi = 400
-    plt.figure(figsize=(12,8), dpi=dpi)
-    # plt.figure(num=None, figsize=(12, 8), dpi=dpi, facecolor='w', edgecolor='k')
-
+    plt.figure(figsize=figure_size)
     if image_color:
         image_colors = ImageColorGenerator(mask)
         plt.imshow(wordcloud.recolor(color_func=image_colors), interpolation="bilinear")
         plt.title(title, fontdict={'size': title_size,
                                    'verticalalignment': 'bottom'})
     else:
-        print('image_color is false')
-        plt.imshow(wordcloud, interpolation='bilinear')
+        plt.imshow(wordcloud)
         plt.title(title, fontdict={'size': title_size, 'color': 'green',
                                    'verticalalignment': 'bottom'})
-    # plt.imshow(wordcloud, interpolation='bilinear')
     plt.axis('off')
     plt.tight_layout()
 
-    # plt.show()
-
-    #save fig
-    out_path = 'figures/'
-    out_filename = out_path + 'general_related_queries_wordcloud.jpg'
-    out_filename = out_filename.replace(" ", "-")
-    print('The figure save into:', out_filename)
-    plt.savefig(out_filename, dpi=dpi) #save figure as ward_clusters
+    plt.show()
 
 
 def extract_top_words_for_keyword(keyword):
