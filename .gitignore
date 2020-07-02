@@ -3,3 +3,4 @@ data/
 output/
 common/__pycache__/
 results/
+venv/
